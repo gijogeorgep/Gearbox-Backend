@@ -6,8 +6,8 @@ const crypto = require("crypto");
 const { rentRequest } = require("../models/rentRequest.model");
 
 const razorpay = new Razorpay({
-  key_id: process.env.RAZORPAY_KEY_ID, // Ensure test key is used
-  key_secret: process.env.RAZORPAY_KEY_SECRET,
+  key_id: "rzp_test_QgNiku4DkATwmt", // Ensure test key is used
+  key_secret: "Hs4PDuQPoPXJJovOsquHZrXr",
 });
 
 const createRazorPayOrder = async (req, res) => {
