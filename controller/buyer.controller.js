@@ -1,5 +1,5 @@
 const { Buyer } = require("../models/buyer.Model");
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const { OtpVerification } = require("../models/otpModel");
 const jwt = require("jsonwebtoken");
 const e = require("express");
