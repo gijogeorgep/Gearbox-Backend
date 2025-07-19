@@ -11,17 +11,15 @@ const sendOtp = async (req, res) => {
     console.log("A");
 
     const { name, username, email } = req.body;
-    console.log(name,username,email);
+    console.log(name, username, email);
 
-
-    
     // Check if the email already exists in the Seller collection
     const existingBuyer = await Buyer.findOne({ email });
-console.log("A");
+    console.log("A");
     if (existingBuyer) {
       return res.status(400).json({ msg: "Email already registered." });
     }
-console.log("A");
+    console.log("A");
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
     const transporter = nodemailer.createTransport({
@@ -31,7 +29,6 @@ console.log("A");
         pass: process.env.EMAIL_PASSWORD,
       },
     });
-    console.log("A");
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
@@ -39,10 +36,8 @@ console.log("A");
       subject: "Verify your email - Camera Rental App",
       text: `Your OTP code is: ${otp}`,
     };
-    console.log("A");
 
     await transporter.sendMail(mailOptions);
-    console.log("A");
 
     // Save OTP record to the database
     await OtpVerification.create({
@@ -157,6 +152,37 @@ const loginWithPassword = async (req, res) => {
   }
 };
 
+const editBuyerProfile = async (req, res) => {
+  try {
+    if (!req.buyer) {
+      return res.status(401).json({ msg: "unauthorized" });
+    }
+
+    const { name, username, email, phone } = req.body;
+
+    if (!name || !username || !email || !phone) {
+      return res.status(400).json({ msg: "All fields are required" });
+    }
+
+    const updatedBuyer = await Buyer.findByIdAndUpdate(
+      req.buyer._id,
+      { name, username, email, phone },
+      { new: true }
+    );
+
+    if (!updatedBuyer) {
+      return res.status(404).json({ msg: "buyer not found" });
+    }
+
+    return res
+      .status(200)
+      .json({ msg: "Profile updated successfully", updatedBuyer });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "internal server error" });
+  }
+};
+
 const getBuyerCount = async (req, res) => {
   try {
     const count = await Buyer.countDocuments();
@@ -174,7 +200,7 @@ const BuyerProfile = async (req, res) => {
     }
 
     console.log(req.buyer);
-    
+
     const buyer = await Buyer.findById(req.buyer._id);
     if (!buyer) {
       return res.status(404).json({ msg: "buyer not found" });
@@ -187,11 +213,41 @@ const BuyerProfile = async (req, res) => {
   }
 };
 
+const updateBuyerProfileImage = async (req, res) => {
+  try {
+    if (!req.buyer) {
+      return res.status(401).json({ msg: "Unauthorized" });
+    }
+
+    const { buyerProfileUrl } = req.body;
+
+    if (!buyerProfileUrl) {
+      return res.status(400).json({ msg: "Image URL is required" });
+    }
+
+    const updatedBuyer = await Buyer.findByIdAndUpdate(
+      req.buyer._id,
+      { buyerProfileUrl },
+      { new: true }
+    );
+
+    return res
+      .status(200)
+      .json({ msg: "Profile image updated successfully", buyer: updatedBuyer });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: "Internal server error" });
+  }
+};
+
+
 module.exports = {
   sendOtp,
   verifyOtp,
   createBuyer,
+  editBuyerProfile,
   loginWithPassword,
   getBuyerCount,
   BuyerProfile,
+  updateBuyerProfileImage,
 };
